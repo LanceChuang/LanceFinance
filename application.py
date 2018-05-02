@@ -10,6 +10,7 @@ from helpers import *
 app = Flask(__name__)
 
 # ensure responses aren't cached
+# debug mode: make a change to some file but your browser not notice
 if app.config["DEBUG"]:
     @app.after_request
     def after_request(response):
@@ -19,12 +20,13 @@ if app.config["DEBUG"]:
         return response
 
 # custom filter
+# usd, a function (defined in helpers.py) that will make it easier to format values as US dollars (USD)
 app.jinja_env.filters["usd"] = usd
 
 # configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "filesystem" # store sessions on the local filesystem
 Session(app)
 
 # configure CS50 Library to use SQLite database
