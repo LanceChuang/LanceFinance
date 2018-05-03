@@ -98,7 +98,27 @@ def logout():
 @login_required
 def quote():
     """Get stock quote."""
-    return apology("TODO")
+    if request.method == "POST":
+
+        # ensure stock symbol was submitted
+        if not request.form.get("symbol"):
+            return apology("Missing Symbol")
+
+        # lookup: get quote from Yahoo Finance OR Alpha Vantage
+        symbol = request.form.get("symbol").upper()
+        print("symbol:", symbol)
+        quote = lookup(symbol)
+        print(quote)
+
+        # ensure symbol is valid
+        if quote == None:
+            return apology("Invalid Symbol")
+
+        return render_template("quoted.html", name=quote["name"], symbol=quote["symbol"], price=quote["price"])
+
+    # user reached via GET
+    else:
+        return render_template("quote.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -129,7 +149,7 @@ def register():
                             VALUES(:username, :hash)", username=request.form.get("username"),\
                             hash=pwd_context.hash(request.form.get("password")))
         if not rows:
-            return apology("Username already exist")
+            return apology("Username already exists")
 
 
         # remember which user has logged in
