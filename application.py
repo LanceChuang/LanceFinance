@@ -124,11 +124,13 @@ def register():
 
         # pwd_context.hash: hash password
         # add user to database
+        # rows: returned id
         rows = db.execute("INSERT INTO users (username, hash) \
                             VALUES(:username, :hash)", username=request.form.get("username"),\
                             hash=pwd_context.hash(request.form.get("password")))
         if not rows:
             return apology("Username already exist")
+
 
         # remember which user has logged in
         session["user_id"] = rows
