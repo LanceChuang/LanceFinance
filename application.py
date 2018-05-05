@@ -1,3 +1,4 @@
+import os
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
@@ -41,7 +42,45 @@ def index():
 @login_required
 def buy():
     """Buy shares of stock."""
-    return apology("TODO")
+    if request.method == "POST":
+
+        # ensure stock symbol & share was submitted
+        if not request.form.get("symbol"):
+            return apology("Missing valid symbol")
+        elif lookup(request.form.get("symbol")) == None:
+            return apology("Invalid symbol")
+        elif not request.form.get("share"):
+            return apology("Missing Share")
+
+        # check if share is integer and greater than 0
+        elif not request.form.get("share").isnumeric():
+            return apology("invalid share")
+        elif int(request.form.get("share")) <= 0:
+            return apology("Not a positive integer")
+
+        symbol = request.form.get("symbol")
+        quote = lookup(symbol)
+        # print("quote: ", quote)
+        # check how much cash the user currently has in users
+        cash = db.execute("SELECT cash \
+                          FROM users \
+                          WHERE id = :id", id=session["user_id"] )
+        print(cash) #[{'cash': 10000}]
+
+        price = int(quote["price"])
+        shares = int(request.form.get("share"))
+        updated_cash = cash[0]["cash"] - shares * price
+        if updated_cash < 0:
+            return apology("Balance can't afford")
+
+        # everything ok  -> 1: update cash 2: buy stock
+        db.execute("UPDATE users SET cash = :updated_cash \
+                    WHERE id = :id", updated_cash=updated_cash, id=session["user_id"])
+
+        # NEW portfolio
+        # keep track of the purchase
+
+    return render_template("buy.html")
 
 @app.route("/history")
 @login_required
