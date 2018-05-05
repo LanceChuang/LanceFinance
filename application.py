@@ -58,14 +58,14 @@ def buy():
         elif int(request.form.get("share")) <= 0:
             return apology("Not a positive integer")
 
-        symbol = request.form.get("symbol")
+        symbol = request.form.get("symbol").upper()
         quote = lookup(symbol)
         # print("quote: ", quote)
         # check how much cash the user currently has in users
         cash = db.execute("SELECT cash \
                           FROM users \
                           WHERE id = :id", id=session["user_id"] )
-        print(cash) #[{'cash': 10000}]
+        # print(cash) #[{'cash': 10000}]
 
         price = int(quote["price"])
         shares = int(request.form.get("share"))
@@ -73,14 +73,30 @@ def buy():
         if updated_cash < 0:
             return apology("Balance can't afford")
 
-        # everything ok  -> 1: update cash 2: buy stock
+        # everything ok  -> 1: update user cash 2: buy stock
         db.execute("UPDATE users SET cash = :updated_cash \
                     WHERE id = :id", updated_cash=updated_cash, id=session["user_id"])
 
-        # NEW portfolio
-        # keep track of the purchase
+        # portfolio: keep track of the purchase
+        rows = db.execute("SELECT * FROM portfolio \
+                    WHERE id = :id AND symbol = :symbol", id=session["user_id"], symbol=symbol)
 
-    return render_template("buy.html")
+        # if no share then INSERT a new row in portfolio
+        if len(rows) == 0:
+            db.execute("INSERT INTO portfolio (id, symbol, share)\
+                    VALUES (:id, :symbol, :shares)", id=session["user_id"], symbol=symbol, shares=shares)
+        else:
+            db.execute("UPDATE portfolio SET share = share + :shares", shares=shares)
+
+        # update the history table
+        db.execute("INSERT INTO history (id, symbol, share, price)\
+                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=shares, price=price)
+
+        return render_template("index.html")
+
+    else:
+
+        return render_template("buy.html")
 
 @app.route("/history")
 @login_required
@@ -203,4 +219,68 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock."""
-    return apology("TODO")
+    if request.method == "POST":
+
+        # ensure stock symbol & share was submitted
+        if not request.form.get("symbol"):
+            return apology("Missing valid symbol")
+        elif lookup(request.form.get("symbol").upper()) == None:
+            return apology("Invalid symbol")
+        elif not request.form.get("share"):
+            return apology("Missing Share")
+
+        # check if share is integer and greater than 0
+        elif not request.form.get("share").isnumeric():
+            return apology("invalid share")
+        elif int(request.form.get("share")) <= 0:
+            return apology("Not a positive integer")
+
+        symbol = request.form.get("symbol").upper()
+        quote = lookup(symbol)
+        shares = int(request.form.get("share"))
+
+        # check if user has the share
+        shares_already_list = db.execute("SELECT share \
+                          FROM portfolio \
+                          WHERE id = :id \
+                          AND symbol = :symbol", id=session["user_id"], symbol=symbol )
+        # print("share already:", shares_already)
+        if len(shares_already_list) == 0:
+            return apology("symbol not owned.")
+
+        shares_already = shares_already_list[0]["share"]
+        updated_share = shares_already - shares
+
+        if updated_share < 0:
+            return apology("too many shares")
+
+        # everything ok  -> 1: update user cash from user table 2: sell stock
+        cash = db.execute("SELECT cash \
+                          FROM users \
+                          WHERE id = :id", id=session["user_id"] )
+
+        price = int(quote["price"])
+        shares = int(request.form.get("share"))
+        updated_cash = cash[0]["cash"] + shares * price
+
+        db.execute("UPDATE users SET cash = :updated_cash \
+                    WHERE id = :id", updated_cash=updated_cash, id=session["user_id"])
+
+        # update portfolio table
+        # if updated share == 0, remove row, else update
+        if updated_share == 0:
+            db.execute("DELETE FROM portfolio \
+                        WHERE id = :id AND symbol = :symbol", id=session["user_id"], symbol=symbol)
+        else:
+            db.execute("UPDATE portfolio SET \
+                        share = :updated_share \
+                        WHERE id = :id AND symbol = :symbol", updated_share=updated_share, id=session["user_id"], symbol=symbol)
+
+        # update history table
+        db.execute("INSERT INTO history (id, symbol, share, price)\
+                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=-(shares), price=price)
+
+        return render_template("index.html")
+    else:
+        # if user reaches via GET
+        return render_template("sell.html")
