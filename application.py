@@ -90,7 +90,7 @@ def buy():
 
         # update the history table
         db.execute("INSERT INTO history (id, symbol, share, price)\
-                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=shares, price=price)
+                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=shares, price=usd(price))
 
         return render_template("index.html")
 
@@ -278,7 +278,7 @@ def sell():
 
         # update history table
         db.execute("INSERT INTO history (id, symbol, share, price)\
-                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=-(shares), price=price)
+                    VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=-(shares), price=usd(price))
 
         return render_template("index.html")
     else:
