@@ -22,10 +22,9 @@
 
     <body>
 
-        <div class="container">
+
 
             <nav class="navbar navbar-default">
-                <div class="container-fluid">
                     <div class="navbar-header">
                         <button aria-expanded="false" class="navbar-toggle collapsed" data-target="#navbar" data-toggle="collapse" type="button">
                             <span class="sr-only">Toggle navigation</span>
@@ -33,7 +32,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="{{ url_for('index') }}"><span class="blue">Lance</span><span class="red">Finance</span></a>
+                        <a class="navbar-brand" href="{{ url_for('index') }}"><span class="yellow">Lance</span> <span class="red">Finance</span></a>
                     </div>
                     <div class="collapse navbar-collapse" id="navbar">
                         {% if session.user_id %}
@@ -53,7 +52,7 @@
                             </ul>
                         {% endif %}
                     </div>
-                </div>
+
             </nav>
 
             {% if get_flashed_messages() %}
@@ -64,11 +63,11 @@
                 </header>
             {% endif %}
 
-            <main>
+            <main class="container p-5">
                 {% block main %}{% endblock %}
             </main>
-            
-        </div>
+
+
 
     </body>
 
