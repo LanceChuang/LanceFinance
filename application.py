@@ -1,6 +1,6 @@
 import os
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, Response, request, session, url_for
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
@@ -36,7 +36,29 @@ db = SQL("sqlite:///finance.db")
 @app.route("/")
 @login_required
 def index():
-    return apology("TODO")
+    rows = db.execute("SELECT * FROM portfolio WHERE id = :id ", id=session["user_id"])
+    # print(rows)# [{'symbol': 'FB', 'share': 7, 'id': 8},}]
+
+    # get user's current cash
+    cash = db.execute("SELECT cash FROM users WHERE id = :id", id=session["user_id"])[0]["cash"]
+
+
+    # empty portfolio
+    if len(rows) == 0:
+        asset = [{"Symbol":" ", "Name": " ", "Shares": " ", "Price": " ", "Total": 0}]
+        return render_template("index.html", stocks=asset, CASH=usd(cash), total=usd(cash))
+
+    asset = []
+    cash_price = cash
+    for portfolio in rows:
+        current_price = lookup(portfolio["symbol"])["price"]
+        total_price = current_price * portfolio["share"]
+        cash_price += total_price
+        asset.append({"Symbol": portfolio["symbol"], "Name": portfolio["symbol"], "Shares": portfolio["share"],
+        "Price": current_price, "Total": total_price})
+
+
+    return render_template("index.html", stocks=asset, CASH=usd(cash), total=usd(cash_price))
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -92,6 +114,7 @@ def buy():
         db.execute("INSERT INTO history (id, symbol, share, price)\
                     VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=shares, price=usd(price))
 
+        flash("Bought!") # show alert
         return redirect(url_for("index"))
 
     else:
@@ -255,6 +278,7 @@ def sell():
         shares_already = shares_already_list[0]["share"]
         updated_share = shares_already - shares
 
+
         if updated_share < 0:
             return apology("too many shares")
 
@@ -284,6 +308,7 @@ def sell():
         db.execute("INSERT INTO history (id, symbol, share, price)\
                     VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=-(shares), price=usd(price))
 
+        flash("Sold!")
         return redirect(url_for("index"))
     else:
         # if user reaches via GET
