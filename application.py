@@ -92,7 +92,7 @@ def buy():
         db.execute("INSERT INTO history (id, symbol, share, price)\
                     VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=shares, price=usd(price))
 
-        return render_template("index.html")
+        return redirect(url_for("index"))
 
     else:
 
@@ -104,7 +104,7 @@ def history():
     """Show history of transactions."""
     rows = db.execute("SELECT * FROM history \
                         WHERE id = :id", id=session["user_id"])
-    print(rows)
+    # print(rows)
 
     return render_template("history.html", history=rows)
 
