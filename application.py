@@ -284,7 +284,7 @@ def sell():
         db.execute("INSERT INTO history (id, symbol, share, price)\
                     VALUES (:id, :symbol, :share, :price)", id=session["user_id"], symbol=symbol, share=-(shares), price=usd(price))
 
-        return render_template("index.html")
+        return redirect(url_for("index"))
     else:
         # if user reaches via GET
         return render_template("sell.html")
