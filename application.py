@@ -312,4 +312,7 @@ def sell():
         return redirect(url_for("index"))
     else:
         # if user reaches via GET
-        return render_template("sell.html")
+        # retrieve current symbol in portfolio
+        rows = db.execute("SELECT symbol FROM portfolio WHERE id = :id", id=session["user_id"])
+
+        return render_template("sell.html", stock_symbol=rows)
