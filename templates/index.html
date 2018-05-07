@@ -5,7 +5,10 @@
 {% endblock %}
 
 {% block main %}
-    <table class="table table-striped" style="width:100%">
+ <!--<div class="container">-->
+   <main class="container p-5">
+    <table class="table table-striped">
+      <thead>
       <tr>
         <th>Symbol</th>
         <th>Name</th>
@@ -13,6 +16,8 @@
         <th>Price</th>
         <th>TOTAL</th>
       </tr>
+      </thead>
+    <tbody>
     {% for stock in stocks %}
       <tr>
         <td>{{ stock["Symbol"] }}</td>
@@ -35,8 +40,8 @@
         <td></td>
         <td></td>
         <td><b>{{ total }}</b></td>
-
       </tr>
+      </tbody>
     </table>
-
+    </main>
 {% endblock %}
