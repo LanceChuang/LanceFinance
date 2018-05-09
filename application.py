@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, Response, request, se
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
-
+import sys
 from helpers import *
 
 # configure application
@@ -66,6 +66,8 @@ def buy():
     """Buy shares of stock."""
     if request.method == "POST":
 
+        print(request.form.get("symbol"), file=sys.stderr)
+        print(lookup(request.form.get("symbol")), file=sys.stderr)
         # ensure stock symbol & share was submitted
         if not request.form.get("symbol"):
             return apology("Missing valid symbol")

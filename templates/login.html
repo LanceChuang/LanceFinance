@@ -4,18 +4,65 @@
     Log In
 {% endblock %}
 
-{% block main %}
+{% block body %}
+<body class="my-login-page">
+	<section class="h-100">
+		<div class="container h-100">
+			<div class="row justify-content-md-center h-100">
+				<div class="card-wrapper">
+					<div class="card fat">
+						<div class="card-body">
+							<h4 class="card-title">Login</h4>
+
     <form action="{{ url_for('login') }}" method="post">
-        <fieldset>
-            <div class="form-group">
-                <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
-            </div>
-            <div class="form-group">
-                <input class="form-control" name="password" placeholder="Password" type="password"/>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-primary" type="submit">Log In</button>
-            </div>
-        </fieldset>
+    	<div class="form-group">
+    		<label for="email">User Name</label>
+
+    		<input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+    	</div>
+			<div class="form-group">
+		<label for="password">Password
+		</label>
+		<input class="form-control" name="password" placeholder="Password" type="password"/>
+	</div>
+									<div class="form-group">
+									<label>
+										<input type="checkbox" name="remember"> Remember Me
+									</label>
+								</div>
+									<div class="form-group no-margin">
+									<button type="submit" class="btn btn-primary btn-block">
+										Login
+									</button>
+								</div>
+								<div class="margin-top20 text-center">
+									Don't have an account? <a href="{{ url_for('register') }}">Create One</a>
+								</div>
+        <!--<fieldset>-->
+        <!--    <div class="form-group">-->
+        <!--        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>-->
+        <!--    </div>-->
+        <!--    <div class="form-group">-->
+        <!--        <input class="form-control" name="password" placeholder="Password" type="password" required data-eye />-->
+        <!--    </div>-->
+        <!--    <div class="form-group">-->
+        <!--        <button class="btn btn-primary" type="submit">Log In</button>-->
+        <!--    </div>-->
+        <!--</fieldset>-->
     </form>
+				</div>
+					</div>
+					<div class="footer">
+						Copyright &copy; 2018 &mdash; Lance Inc.
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+    	<script src="js/jquery.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+	<script src="js/my-login.js"></script>
+</body>
+
+
 {% endblock %}

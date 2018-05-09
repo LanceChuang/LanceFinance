@@ -15,7 +15,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
         <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet"/>
-
+        <link href="/static/my-login.css" rel="stylesheet"/>
 
 
         <title>Lance Finance: {% block title %}{% endblock %}</title>
@@ -63,7 +63,7 @@
                     </div>
                 </header>
             {% endif %}
-
+            {% block body %}{% endblock %}
             <main class="container p-5">
                 {% block main %}{% endblock %}
             </main>
