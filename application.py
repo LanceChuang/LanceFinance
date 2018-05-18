@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, Response, request, se
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
-import sys
+
 from helpers import *
 
 # configure application
@@ -42,15 +42,15 @@ def index():
     # get user's current cash
     cash = db.execute("SELECT cash FROM users WHERE id = :id", id=session["user_id"])[0]["cash"]
 
-
-    # empty portfolio
+    # empty portfolio: pass nothign to stock
     if len(rows) == 0:
-        asset = [{"Symbol":" ", "Name": " ", "Shares": " ", "Price": " ", "Total": 0}]
-        return render_template("index.html", stocks=asset, CASH=usd(cash), total=usd(cash))
+        return render_template("index.html", CASH=usd(cash), total=usd(cash))
 
     asset = []
     cash_price = cash
+
     for portfolio in rows:
+        print("symbol lookup: ", lookup(portfolio["symbol"]))
         current_price = lookup(portfolio["symbol"])["price"]
         total_price = current_price * portfolio["share"]
         cash_price += total_price
@@ -66,13 +66,9 @@ def buy():
     """Buy shares of stock."""
     if request.method == "POST":
 
-        print(request.form.get("symbol"), file=sys.stderr)
-        print(lookup(request.form.get("symbol")), file=sys.stderr)
         # ensure stock symbol & share was submitted
         if not request.form.get("symbol"):
             return apology("Missing valid symbol")
-        elif lookup(request.form.get("symbol")) == None:
-            return apology("Invalid symbol")
         elif not request.form.get("share"):
             return apology("Missing Share")
 
@@ -83,7 +79,12 @@ def buy():
             return apology("Not a positive integer")
 
         symbol = request.form.get("symbol").upper()
+        print("symbol: ", symbol)
         quote = lookup(symbol)
+        print("quote: ", quote)
+
+        if quote == None:
+            return apology("Invalid Symbol")
         # print("quote: ", quote)
         # check how much cash the user currently has in users
         cash = db.execute("SELECT cash \
