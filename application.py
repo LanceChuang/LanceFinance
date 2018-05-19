@@ -245,6 +245,40 @@ def register():
     else:
         return render_template("register.html")
 
+@app.route("/password", methods=["GET", "POST"])
+@login_required
+def password():
+    """Change user password for user already logged in."""
+
+    if request.method == "POST":
+
+        # invalid case
+        if not request.form.get("old_password"):
+            return apology("Must enter old password")
+        if not request.form.get("new_password"):
+            return apology("Must enter new password")
+        if not request.form.get("confirmation"):
+            return apology("Must confirm new password")
+        if request.form.get("confirmation") != request.form.get("new_password"):
+            return apology("Password must match!")
+
+        hashes = db.execute("SELECT hash FROM users WHERE id = :id", id=session["user_id"])
+        if not pwd_context.verify(request.form.get("old_password"), hashes[0]["hash"]):
+            print("old hash from db:", hashes[0]["hash"])
+            print("old hash from input:", pwd_context.hash(request.form.get("old_password")))
+            return apology("Old password is wrong!")
+
+        # update password
+        db.execute("UPDATE users \
+                    SET hash = :hash WHERE id = :id", hash=pwd_context.hash(request.form.get("new_password")), \
+                    id=session["user_id"])
+
+        flash("Change password successfully!")
+        return redirect(url_for("index"))
+
+    else:
+        return render_template("password.html")
+
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
