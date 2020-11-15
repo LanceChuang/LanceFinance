@@ -18,3 +18,21 @@
 
 ### Portfolio
 <img src="https://github.com/LanceChuang/LanceFinance/blob/master/imgs/portfolio.png" width="80%" height="20%">
+
+## Troubleshooting
+### Unlock api key
+
+Make sure there is git-crypt locally.
+```
+brew install git-crypt
+```
+
+Unlock the file with the key.
+```
+git-crypt unlock ./path-of-file-to-store-key
+```
+
+Reference:
+https://buddy.works/guides/git-crypt#testing-encryption
+
+https://thearjunmdas.github.io/entries/encrypt-decrypt-files-with-git/
